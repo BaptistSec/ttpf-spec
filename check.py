@@ -12,7 +12,7 @@ def summary(d):
     tex = []
     for i in range(b):
         u0, u1, u2, u3 = struct.unpack_from("<IIII", d, hp * 0x100 + 0x10 + 16 * i)
-        tex.append(((u0 & 0x3FFF) + 1, ((u0 >> 14) & 0x3FFF) + 1, (u1 >> 3) & 0x7F, u1 >> 24, u2 & 0xFFFFF))
+        tex.append(((u0 & 0x3FFF) + 1, ((u0 >> 14) & 0x3FFF) + 1, (u1 & 0x3FF) >> 3, u0 >> 28, u2 & 0x1FFFFF))
     return {"chunks": n, "A": a, "descriptors": tex}
 
 def selftest():
@@ -24,7 +24,7 @@ def selftest():
     head = (b"RDS5" + struct.pack("<IIII", 2, 0, 0, hp)).ljust(0x18, b"\0") + table
     d = head.ljust(0x100, b"\0") + etpf + bytes(range(16)).ljust(0x100, b"\0")
     s = summary(d)
-    assert s["chunks"] == 2 and s["A"] == 634 and s["descriptors"] == [(8, 8, 98, 1, 1)], s
+    assert s["chunks"] == 2 and s["A"] == 634 and s["descriptors"] == [(8, 8, 98, 0, 1)], s
     print("selftest ok")
 
 if __name__ == "__main__":
